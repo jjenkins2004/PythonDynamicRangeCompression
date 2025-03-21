@@ -12,7 +12,7 @@ def UpdateEnvelope(audio, processed, toProcess):
     d.mEnvelope = np.max(np.abs(block), axis=0)
 
     # compute the gain reduction based on the m_envelope
-    gainReduction.computeGainInDecibelsFromSidechainSignal(toProcess)
+    gainReduction.computeGainInDecibelsFromSidechainSignal(d.mEnvelope, toProcess)
 
     # quit early if there is no lookahead smoothing
     if d.lookaheadMs <= 0:

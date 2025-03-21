@@ -1,58 +1,57 @@
-from . import definitions as d
 import math
 import numba
 
 # helper functions for computing gain reduction and lookahead gain reduction
 
 
-def computeGainInDecibelsFromSidechainSignal(numSamples):
-    d.maxInputLevel = float("-inf")
-    d.maxGainReduction = 0.0
+def computeGainInDecibelsFromSidechainSignal(mEnvelope, numSamples, log2ToDb, compressionSettings, gainSettings):
+    gainSettings.maxInputLevel = float("-inf")
+    gainSettings.maxGainReduction = 0.0
 
     for i in range(numSamples):
         # convert the current signal to decibals
         epsilon = 1e-10
-        value = abs(d.mEnvelope[i])
+        value = abs(mEnvelope[i])
         if value < epsilon:
             value = epsilon
-        levelInDecibels = d.log2ToDb * math.log2(value)
+        levelInDecibels = log2ToDb * math.log2(value)
 
         # update the max input level
-        if levelInDecibels > d.maxInputLevel:
-            d.maxInputLevel = levelInDecibels
+        if levelInDecibels > gainSettings.maxInputLevel:
+            gainSettings.maxInputLevel = levelInDecibels
 
         # calculate the overshoot compared to the set threshold
-        overShoot = levelInDecibels - d.inCompressionThreshDb
+        overShoot = levelInDecibels - compressionSettings.inCompressionThreshDb
 
         # apply soft-knee compression curve, applying reduction based on how far input level exceeds threshold
         gainReduction = 0.0
-        kneeHalf = d.kneeWidthDb / 2
+        kneeHalf = compressionSettings.kneeWidthDb / 2
         if overShoot <= -kneeHalf:
             gainReduction = 0.0
         elif overShoot <= kneeHalf:
             gainReduction = (
                 0.5
-                * d.slope
+                * gainSettings.slope
                 * (overShoot + kneeHalf)
                 * (overShoot + kneeHalf)
-                / d.kneeWidthDb
+                / compressionSettings.kneeWidthDb
             )
         else:
-            gainReduction = d.slope * overShoot
+            gainReduction = gainSettings.slope * overShoot
 
         # factor in attack or release
-        diff = gainReduction - d.state
+        diff = gainReduction - gainSettings.state
         if diff < 0:
-            d.state += d.alphaAttack * diff
+            gainSettings.state += gainSettings.alphaAttack * diff
         else:
-            d.state += d.alphaRelease * diff
+            gainSettings.state += gainSettings.alphaRelease * diff
 
         # apply the gain reduction
-        d.mEnvelope[i] = d.state
+        mEnvelope[i] = gainSettings.state
 
         # update max gain reduction
-        if d.state < d.maxGainReduction:
-            d.maxGainReduction = d.state
+        if gainSettings.state < gainSettings.maxGainReduction:
+            gainSettings.maxGainReduction = gainSettings.state
 
 
 # yeah i have no idea how the lookahead gain reduction works and looks way to hard to figure out
