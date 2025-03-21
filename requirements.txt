@@ -1,4 +1,0 @@
-numpy
-pydub
-PyAudio
-audioop-lts
