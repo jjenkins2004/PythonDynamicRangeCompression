@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='dynamic_range_compression', 
-    version='0.1.0',                       
+    version='1.0.0',                       
     description='Dynamic range compression in Python based on Audacity\'s and Daniel Rudrich\'s algorithm',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',

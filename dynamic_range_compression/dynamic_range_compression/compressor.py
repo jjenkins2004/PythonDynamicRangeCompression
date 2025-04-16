@@ -2,8 +2,8 @@ import numpy as np
 from pydub import AudioSegment
 import os
 import numba
-from compressorHelper import definitions as d
-from compressorHelper import envelope
+from .compressorHelper import definitions as d
+from .compressorHelper import envelope
 
 
 # Value Ranges:
