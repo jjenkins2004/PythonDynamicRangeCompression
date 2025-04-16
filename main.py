@@ -1,4 +1,6 @@
-from dynamic_range_compression import compress_audio
+# Example of how to use
+
+from dynamic_range_compression.dynamic_range_compression import compress_audio
 import os
 import time
 
